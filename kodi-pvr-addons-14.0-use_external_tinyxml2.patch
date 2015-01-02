@@ -1,0 +1,62 @@
+diff -up ./configure.ac.orig ./configure.ac
+--- ./configure.ac.orig	2014-12-25 11:24:48.053380551 +0100
++++ ./configure.ac	2014-12-25 11:36:03.001192347 +0100
+@@ -284,7 +284,6 @@ AC_CONFIG_FILES([Makefile \
+                  lib/libdvblinkremote/Makefile \
+                  lib/libhts/Makefile \
+                  lib/tinyxml/Makefile \
+-                 lib/tinyxml2/Makefile \
+                  addons/Makefile \
+                  addons/pvr.argustv/Makefile \
+                  addons/pvr.demo/Makefile \
+diff -up ./lib/libdvblinkremote/Makefile.am.orig ./lib/libdvblinkremote/Makefile.am
+--- ./lib/libdvblinkremote/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./lib/libdvblinkremote/Makefile.am	2014-12-25 11:36:37.796192697 +0100
+@@ -26,10 +26,10 @@ libdvblinkremote_la_SOURCES = channel.cp
+ 			util.cpp \
+ 			xml_object_serializer_factory.cpp
+ 
+-LIBS= @abs_top_srcdir@/lib/tinyxml2/libtinyxml2.la
++LIBS=$(shell pkg-config --libs tinyxml2)
+  
+-INCLUDES=-I..
++INCLUDES=$(shell pkg-config --cflags tinyxml2)
+ 
+ $(LIB): libdvblinkremote.la
+ 	cp -f .libs/libdvblinkremote.a .
+-	cp -f .libs/libdvblinkremote.la $(LIB)
+\ Pas de fin de ligne à la fin du fichier
++	cp -f .libs/libdvblinkremote.la $(LIB)
+diff -up ./lib/libdvblinkremote/util.h.orig ./lib/libdvblinkremote/util.h
+--- ./lib/libdvblinkremote/util.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./lib/libdvblinkremote/util.h	2014-12-25 11:38:11.878489736 +0100
+@@ -27,7 +27,7 @@
+ #include <sstream>
+ #include <iostream>
+ #include <cstdio>
+-#include "tinyxml2/tinyxml2.h"
++#include <tinyxml2.h>
+ 
+ namespace dvblinkremote {
+   class Util {
+diff -up ./lib/libdvblinkremote/xml_object_serializer.h.orig ./lib/libdvblinkremote/xml_object_serializer.h
+--- ./lib/libdvblinkremote/xml_object_serializer.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./lib/libdvblinkremote/xml_object_serializer.h	2014-12-25 11:38:11.880489679 +0100
+@@ -30,7 +30,7 @@
+ #include "request.h"
+ #include "response.h"
+ #include "util.h"
+-#include "tinyxml2/tinyxml2.h"
++#include <tinyxml2.h>
+ 
+ using namespace dvblinkremote;
+ 
+diff -up ./lib/Makefile.am.orig ./lib/Makefile.am
+--- ./lib/Makefile.am.orig	2014-12-25 11:24:48.053380551 +0100
++++ ./lib/Makefile.am	2014-12-25 11:38:25.515097961 +0100
+@@ -1,4 +1,4 @@
+-SUBDIRS = libhts tinyxml tinyxml2 libdvblinkremote $(ADDITIONAL_SUBDIRS)
++SUBDIRS = libhts tinyxml libdvblinkremote $(ADDITIONAL_SUBDIRS)
+ 
+ zip:
+ 

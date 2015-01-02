@@ -1,0 +1,19 @@
+diff -up ./addons/pvr.iptvsimple/src/PVRIptvData.cpp.orig ./addons/pvr.iptvsimple/src/PVRIptvData.cpp
+--- ./addons/pvr.iptvsimple/src/PVRIptvData.cpp.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.iptvsimple/src/PVRIptvData.cpp	2014-12-25 11:15:24.957267496 +0100
+@@ -28,7 +28,7 @@
+ #include <fstream>
+ #include <map>
+ #include "zlib.h"
+-#include "rapidxml/rapidxml.hpp"
++#include <rapidxml.h>
+ #include "PVRIptvData.h"
+ 
+ #define M3U_START_MARKER        "#EXTM3U"
+@@ -1005,4 +1005,4 @@ int PVRIptvData::GetChannelId(const char
+     iId = ((iId << 5) + iId) + c; /* iId * 33 + c */
+ 
+   return abs(iId);
+-}
+\ Pas de fin de ligne à la fin du fichier
++}

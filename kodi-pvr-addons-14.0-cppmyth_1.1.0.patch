@@ -1,0 +1,217 @@
+From a629869c34a0e5b2dede9216aebb3ae2e0044a96 Mon Sep 17 00:00:00 2001
+From: nerddtvg <drew@drewgarrett.com>
+Date: Sun, 9 Nov 2014 16:51:42 -0600
+Subject: [PATCH] [pvr.mythtv] Adding WSAPI Security Pin parameter for
+ GetConnectionInfo with backwards compatibility
+
+---
+ .../addon/resources/language/English/strings.po     |  6 +++++-
+ addons/pvr.mythtv/addon/resources/settings.xml      |  1 +
+ addons/pvr.mythtv/src/client.cpp                    | 21 +++++++++++++++++++++
+ addons/pvr.mythtv/src/client.h                      |  2 ++
+ .../pvr.mythtv/src/cppmyth/MythScheduleManager.cpp  |  4 ++--
+ addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h |  2 +-
+ addons/pvr.mythtv/src/fileOps.cpp                   |  4 ++--
+ addons/pvr.mythtv/src/fileOps.h                     |  2 +-
+ addons/pvr.mythtv/src/pvrclient-mythtv.cpp          |  8 ++++----
+ 9 files changed, 39 insertions(+), 11 deletions(-)
+
+diff --git a/addons/pvr.mythtv/addon/resources/language/English/strings.po b/addons/pvr.mythtv/addon/resources/language/English/strings.po
+index f7422d4..f1398f1 100644
+--- a/addons/pvr.mythtv/addon/resources/language/English/strings.po
++++ b/addons/pvr.mythtv/addon/resources/language/English/strings.po
+@@ -73,7 +73,11 @@ msgctxt "#30013"
+ msgid "MythTV Backend Port for API services"
+ msgstr ""
+ 
+-#empty strings from id 30014 to 30018
++msgctxt "#30014"
++msgid "MythTV Security Pin for API services"
++msgstr ""
++
++#empty strings from id 30015 to 30018
+ 
+ msgctxt "#30019"
+ msgid "General"
+diff --git a/addons/pvr.mythtv/addon/resources/settings.xml b/addons/pvr.mythtv/addon/resources/settings.xml
+index 6da293b..4bd511a 100644
+--- a/addons/pvr.mythtv/addon/resources/settings.xml
++++ b/addons/pvr.mythtv/addon/resources/settings.xml
+@@ -4,6 +4,7 @@
+     <setting id="host" type="text" label="30000" default="127.0.0.1" />
+     <setting id="port" type="number" option="int" label="30001" default="6543" />
+     <setting id="wsport" type="number" option="int" label="30013" default="6544" />
++    <setting id="wssecuritypin" type="text" label="30014" default="0000" />
+     <setting id="host_ether" type="text" label="30012" default="" />
+     <setting id="livetv" type="bool" label="30006" default="true" />
+     <setting id="livetv_priority" type="bool" label="30007" default="true" />
+diff --git a/addons/pvr.mythtv/src/client.cpp b/addons/pvr.mythtv/src/client.cpp
+index 8e4032e..7b2bfb3 100644
+--- a/addons/pvr.mythtv/src/client.cpp
++++ b/addons/pvr.mythtv/src/client.cpp
+@@ -35,6 +35,7 @@ std::string   g_szMythHostname          = DEFAULT_HOST;                     ///<
+ std::string   g_szMythHostEther         = "";                               ///< The Host MAC address of the mythtv server
+ int           g_iProtoPort              = DEFAULT_PROTO_PORT;               ///< The mythtv protocol port (default is 6543)
+ int           g_iWSApiPort              = DEFAULT_WSAPI_PORT;               ///< The mythtv sevice API port (default is 6544)
++std::string   g_szWSSecurityPin         = DEFAULT_WSAPI_SECURITY_PIN;       ///< The default security pin for the mythtv wsapi
+ bool          g_bExtraDebug             = DEFAULT_EXTRA_DEBUG;              ///< Output extensive debug information to the log
+ bool          g_bLiveTV                 = DEFAULT_LIVETV;                   ///< LiveTV support (or recordings only)
+ bool          g_bLiveTVPriority         = DEFAULT_LIVETV_PRIORITY;          ///< MythTV Backend setting to allow live TV to move scheduled shows
+@@ -170,6 +171,17 @@ ADDON_STATUS ADDON_Create(void *hdl, void *props)
+     g_iWSApiPort = DEFAULT_WSAPI_PORT;
+   }
+ 
++  /* Read setting "wssecuritypin" from settings.xml */
++  if (XBMC->GetSetting("wssecuritypin", buffer))
++    g_szWSSecurityPin = buffer;
++  else
++  {
++    /* If setting is unknown fallback to defaults */
++    XBMC->Log(LOG_ERROR, "Couldn't get 'wssecuritypin' setting, falling back to '%s' as default", DEFAULT_WSAPI_SECURITY_PIN);
++    g_szWSSecurityPin = DEFAULT_WSAPI_SECURITY_PIN;
++  }
++  buffer[0] = 0;
++
+   /* Read setting "extradebug" from settings.xml */
+   if (!XBMC->GetSetting("extradebug", &g_bExtraDebug))
+   {
+@@ -446,6 +458,15 @@ ADDON_STATUS ADDON_SetSetting(const char *settingName, const void *settingValue)
+       return ADDON_STATUS_NEED_RESTART;
+     }
+   }
++  else if (str == "wssecuritypin")
++  {
++    std::string tmp_sWSSecurityPin;
++    XBMC->Log(LOG_INFO, "Changed Setting 'wssecuritypin' from %s to %s", g_szWSSecurityPin.c_str(), (const char*)settingValue);
++    tmp_sWSSecurityPin = g_szWSSecurityPin;
++    g_szWSSecurityPin = (const char*)settingValue;
++    if (tmp_sWSSecurityPin != g_szWSSecurityPin)
++      return ADDON_STATUS_NEED_RESTART;
++  }
+   else if (str == "demuxing")
+   {
+     XBMC->Log(LOG_INFO, "Changed Setting 'demuxing' from %u to %u", g_bDemuxing, *(bool*)settingValue);
+diff --git a/addons/pvr.mythtv/src/client.h b/addons/pvr.mythtv/src/client.h
+index c3e45d3..0ce91be 100644
+--- a/addons/pvr.mythtv/src/client.h
++++ b/addons/pvr.mythtv/src/client.h
+@@ -41,6 +41,7 @@
+ #define DEFAULT_LIVETV                      true
+ #define DEFAULT_PROTO_PORT                  6543
+ #define DEFAULT_WSAPI_PORT                  6544
++#define DEFAULT_WSAPI_SECURITY_PIN          "0000"
+ #define DEFAULT_RECORD_TEMPLATE             1
+ 
+ #define SUBTITLE_SEPARATOR                  " - "
+@@ -84,6 +85,7 @@ extern std::string  g_szMythHostname;           ///< The Host name or IP of the
+ extern std::string  g_szMythHostEther;          ///< The Host MAC address of the mythtv server
+ extern int          g_iProtoPort;               ///< The mythtv protocol port (default is 6543)
+ extern int          g_iWSApiPort;               ///< The mythtv service API port (default is 6544)
++extern std::string  g_szWSSecurityPin;          ///< The default security pin for the mythtv wsapi
+ extern bool         g_bExtraDebug;              ///< Debug logging
+ extern bool         g_bLiveTV;                  ///< LiveTV support (or recordings only)
+ extern bool         g_bLiveTVPriority;          ///< MythTV Backend setting to allow live TV to move scheduled shows
+diff --git a/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.cpp b/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.cpp
+index 645a092..c3932aa 100644
+--- a/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.cpp
++++ b/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.cpp
+@@ -105,14 +105,14 @@ bool MythRecordingRuleNode::IsInactiveRule() const
+ //// MythScheduleManager
+ ////
+ 
+-MythScheduleManager::MythScheduleManager(const std::string& server, unsigned protoPort, unsigned wsapiPort)
++MythScheduleManager::MythScheduleManager(const std::string& server, unsigned protoPort, unsigned wsapiPort, const std::string& wsapiSecurityPin)
+ : m_lock()
+ , m_control(NULL)
+ , m_protoVersion(0)
+ , m_versionHelper(NULL)
+ , m_showNotRecording(false)
+ {
+-  m_control = new Myth::Control(server, protoPort, wsapiPort);
++  m_control = new Myth::Control(server, protoPort, wsapiPort, wsapiSecurityPin);
+   this->Update();
+ }
+ 
+diff --git a/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h b/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h
+index 12bdbee..5289e7e 100644
+--- a/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h
++++ b/addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h
+@@ -78,7 +78,7 @@ class MythScheduleManager
+     MSM_ERROR_SUCCESS = 1
+   };
+ 
+-  MythScheduleManager(const std::string& server, unsigned protoPort, unsigned wsapiPort);
++  MythScheduleManager(const std::string& server, unsigned protoPort, unsigned wsapiPort, const std::string& wsapiSecurityPin);
+   ~MythScheduleManager();
+ 
+   // Called by GetTimers
+diff --git a/addons/pvr.mythtv/src/fileOps.cpp b/addons/pvr.mythtv/src/fileOps.cpp
+index 9f307d0..810b273 100644
+--- a/addons/pvr.mythtv/src/fileOps.cpp
++++ b/addons/pvr.mythtv/src/fileOps.cpp
+@@ -32,7 +32,7 @@
+ using namespace ADDON;
+ using namespace PLATFORM;
+ 
+-FileOps::FileOps(const std::string& server, unsigned wsapiport)
++FileOps::FileOps(const std::string& server, unsigned wsapiport, const std::string& wsapiSecurityPin)
+ : CThread()
+ , m_wsapi(NULL)
+ , m_localBasePath(g_szUserPath.c_str())
+@@ -45,7 +45,7 @@ FileOps::FileOps(const std::string& server, unsigned wsapiport)
+   if (!XBMC->DirectoryExists(m_localBasePath.c_str()) && !XBMC->CreateDirectory(m_localBasePath.c_str()))
+     XBMC->Log(LOG_ERROR,"%s - Failed to create cache directory %s", __FUNCTION__, m_localBasePath.c_str());
+ 
+-  m_wsapi = new Myth::WSAPI(server, wsapiport);
++  m_wsapi = new Myth::WSAPI(server, wsapiport, wsapiSecurityPin);
+   CreateThread();
+ }
+ 
+diff --git a/addons/pvr.mythtv/src/fileOps.h b/addons/pvr.mythtv/src/fileOps.h
+index 3aebc1f..f19d833 100644
+--- a/addons/pvr.mythtv/src/fileOps.h
++++ b/addons/pvr.mythtv/src/fileOps.h
+@@ -87,7 +87,7 @@ class FileOps : public PLATFORM::CThread
+   static const int c_timeoutProcess              = 10;       // Wake the thread every 10s
+   static const int c_maximumAttemptsOnReadError  = 3;        // Retry when reading file failed
+ 
+-  FileOps(const std::string& server, unsigned wsapiport);
++  FileOps(const std::string& server, unsigned wsapiport, const std::string& wsapiSecurityPin);
+   virtual ~FileOps();
+ 
+   std::string GetChannelIconPath(const MythChannel& channel);
+diff --git a/addons/pvr.mythtv/src/pvrclient-mythtv.cpp b/addons/pvr.mythtv/src/pvrclient-mythtv.cpp
+index 520e33a..6e76c38 100644
+--- a/addons/pvr.mythtv/src/pvrclient-mythtv.cpp
++++ b/addons/pvr.mythtv/src/pvrclient-mythtv.cpp
+@@ -102,7 +102,7 @@ void PVRClientMythTV::SetDebug()
+ bool PVRClientMythTV::Connect()
+ {
+   SetDebug();
+-  m_control = new Myth::Control(g_szMythHostname, g_iProtoPort, g_iWSApiPort, g_bBlockMythShutdown);
++  m_control = new Myth::Control(g_szMythHostname, g_iProtoPort, g_iWSApiPort, g_szWSSecurityPin, g_bBlockMythShutdown);
+   if (!m_control->IsOpen())
+   {
+     SAFE_DELETE(m_control);
+@@ -115,7 +115,7 @@ bool PVRClientMythTV::Connect()
+   if (!m_control->CheckService())
+   {
+     SAFE_DELETE(m_control);
+-    XBMC->Log(LOG_ERROR,"Failed to connect to MythTV backend on %s:%d", g_szMythHostname.c_str(), g_iWSApiPort);
++    XBMC->Log(LOG_ERROR,"Failed to connect to MythTV backend on %s:%d with pin %s", g_szMythHostname.c_str(), g_iWSApiPort, g_szWSSecurityPin.c_str());
+     return false;
+   }
+ 
+@@ -129,10 +129,10 @@ bool PVRClientMythTV::Connect()
+   m_eventHandler->SubscribeForEvent(m_eventSubscriberId, Myth::EVENT_RECORDING_LIST_CHANGE);
+ 
+   // Create schedule manager
+-  m_scheduleManager = new MythScheduleManager(g_szMythHostname, g_iProtoPort, g_iWSApiPort);
++  m_scheduleManager = new MythScheduleManager(g_szMythHostname, g_iProtoPort, g_iWSApiPort, g_szWSSecurityPin);
+ 
+   // Create file operation helper (image caching)
+-  m_fileOps = new FileOps(g_szMythHostname, g_iWSApiPort);
++  m_fileOps = new FileOps(g_szMythHostname, g_iWSApiPort, g_szWSSecurityPin);
+ 
+   // Start event handler
+   m_eventHandler->Start();

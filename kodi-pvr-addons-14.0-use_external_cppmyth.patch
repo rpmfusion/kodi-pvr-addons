@@ -1,0 +1,155 @@
+diff -up ./addons/pvr.mythtv/Makefile.am.orig ./addons/pvr.mythtv/Makefile.am
+--- ./addons/pvr.mythtv/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/Makefile.am	2014-12-25 11:07:40.944299129 +0100
+@@ -10,10 +10,9 @@ ADDONNAME       = pvr.mythtv
+ LIBNAME         = libmythtv-addon
+ lib_LTLIBRARIES = libmythtv-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/cppmyth/cppmyth/libcppmyth.la \
+-                  @abs_top_srcdir@/lib/cppmyth/jansson/src/libjansson.la
++LIBS            = $(shell pkg-config --libs cppmyth)
+ 
+-AM_CPPFLAGS = -I@abs_top_srcdir@/lib/cppmyth/cppmyth/src
++AM_CPPFLAGS = $(shell pkg-config --cflags cppmyth)
+ 
+ include ../Makefile.include.am
+ 
+diff -up ./addons/pvr.mythtv/src/avinfo.h.orig ./addons/pvr.mythtv/src/avinfo.h
+--- ./addons/pvr.mythtv/src/avinfo.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/avinfo.h	2014-12-25 11:08:55.783199277 +0100
+@@ -24,7 +24,7 @@
+ #include "demuxer/tsDemuxer.h"
+ #include "client.h"
+ 
+-#include <mythstream.h>
++#include <cppmyth/mythstream.h>
+ 
+ #include <set>
+ #include <vector>
+diff -up ./addons/pvr.mythtv/src/cppmyth/MythChannel.h.orig ./addons/pvr.mythtv/src/cppmyth/MythChannel.h
+--- ./addons/pvr.mythtv/src/cppmyth/MythChannel.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/cppmyth/MythChannel.h	2014-12-25 11:08:55.813198435 +0100
+@@ -19,7 +19,7 @@
+  *
+  */
+ 
+-#include <mythtypes.h>
++#include <cppmyth/mythtypes.h>
+ 
+ class MythChannel
+ {
+diff -up ./addons/pvr.mythtv/src/cppmyth/MythEPGInfo.h.orig ./addons/pvr.mythtv/src/cppmyth/MythEPGInfo.h
+--- ./addons/pvr.mythtv/src/cppmyth/MythEPGInfo.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/cppmyth/MythEPGInfo.h	2014-12-25 11:08:55.810198519 +0100
+@@ -19,7 +19,7 @@
+  *
+  */
+ 
+-#include <mythtypes.h>
++#include <cppmyth/mythtypes.h>
+ 
+ class MythEPGInfo
+ {
+diff -up ./addons/pvr.mythtv/src/cppmyth/MythProgramInfo.h.orig ./addons/pvr.mythtv/src/cppmyth/MythProgramInfo.h
+--- ./addons/pvr.mythtv/src/cppmyth/MythProgramInfo.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/cppmyth/MythProgramInfo.h	2014-12-25 11:08:55.803198715 +0100
+@@ -19,7 +19,7 @@
+  *
+  */
+ 
+-#include <mythtypes.h>
++#include <cppmyth/mythtypes.h>
+ 
+ class MythProgramInfo;
+ typedef std::map<std::string, MythProgramInfo> ProgramInfoMap;
+diff -up ./addons/pvr.mythtv/src/cppmyth/MythRecordingRule.h.orig ./addons/pvr.mythtv/src/cppmyth/MythRecordingRule.h
+--- ./addons/pvr.mythtv/src/cppmyth/MythRecordingRule.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/cppmyth/MythRecordingRule.h	2014-12-25 11:08:55.806198631 +0100
+@@ -19,7 +19,7 @@
+  *
+  */
+ 
+-#include <mythtypes.h>
++#include <cppmyth/mythtypes.h>
+ 
+ class MythRecordingRule
+ {
+diff -up ./addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h.orig ./addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h
+--- ./addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/cppmyth/MythScheduleManager.h	2014-12-25 11:08:55.817198323 +0100
+@@ -19,7 +19,7 @@
+  *
+  */
+ 
+-#include <mythcontrol.h>
++#include <cppmyth/mythcontrol.h>
+ #include "MythRecordingRule.h"
+ #include "MythProgramInfo.h"
+ #include "MythEPGInfo.h"
+diff -up ./addons/pvr.mythtv/src/demux.h.orig ./addons/pvr.mythtv/src/demux.h
+--- ./addons/pvr.mythtv/src/demux.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/demux.h	2014-12-25 11:08:55.799198828 +0100
+@@ -24,7 +24,7 @@
+ #include "demuxer/tsDemuxer.h"
+ #include "client.h"
+ 
+-#include <mythstream.h>
++#include <cppmyth/mythstream.h>
+ #include <platform/threads/threads.h>
+ #include <platform/threads/mutex.h>
+ #include <platform/util/buffer.h>
+diff -up ./addons/pvr.mythtv/src/fileOps.h.orig ./addons/pvr.mythtv/src/fileOps.h
+--- ./addons/pvr.mythtv/src/fileOps.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/fileOps.h	2014-12-25 11:08:55.789199108 +0100
+@@ -24,7 +24,7 @@
+ #include "cppmyth/MythChannel.h"
+ #include "cppmyth/MythProgramInfo.h"
+ 
+-#include <mythwsapi.h>
++#include <cppmyth/mythwsapi.h>
+ #include <platform/threads/threads.h>
+ 
+ #include <string>
+diff -up ./addons/pvr.mythtv/src/pvrclient-mythtv.h.orig ./addons/pvr.mythtv/src/pvrclient-mythtv.h
+--- ./addons/pvr.mythtv/src/pvrclient-mythtv.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mythtv/src/pvrclient-mythtv.h	2014-12-25 11:08:55.794198968 +0100
+@@ -28,12 +28,12 @@
+ 
+ #include <xbmc_pvr_types.h>
+ #include <platform/threads/mutex.h>
+-#include <mythsharedptr.h>
+-#include <mythcontrol.h>
+-#include <mytheventhandler.h>
+-#include <mythlivetvplayback.h>
+-#include <mythrecordingplayback.h>
+-#include <mythdebug.h>
++#include <cppmyth/mythsharedptr.h>
++#include <cppmyth/mythcontrol.h>
++#include <cppmyth/mytheventhandler.h>
++#include <cppmyth/mythlivetvplayback.h>
++#include <cppmyth/mythrecordingplayback.h>
++#include <cppmyth/mythdebug.h>
+ 
+ #include <string>
+ #include <vector>
+diff -up ./configure.ac.orig ./configure.ac
+--- ./configure.ac.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./configure.ac	2014-12-25 11:09:47.274754512 +0100
+@@ -278,8 +278,6 @@ else
+ fi
+ AC_SUBST(DATADIR)
+ 
+-AC_CONFIG_SUBDIRS([lib/cppmyth])
+-
+ ### Keep this in alphabetical order
+ AC_CONFIG_FILES([Makefile \
+                  lib/Makefile \
+diff -up ./lib/Makefile.am.orig ./lib/Makefile.am
+--- ./lib/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./lib/Makefile.am	2014-12-25 11:09:24.871383112 +0100
+@@ -1,4 +1,4 @@
+-SUBDIRS = libhts tinyxml tinyxml2 jsoncpp libdvblinkremote cppmyth $(ADDITIONAL_SUBDIRS)
++SUBDIRS = libhts tinyxml tinyxml2 jsoncpp libdvblinkremote $(ADDITIONAL_SUBDIRS)
+ 
+ zip:
+ 

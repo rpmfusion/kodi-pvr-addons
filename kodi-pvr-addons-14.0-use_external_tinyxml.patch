@@ -1,0 +1,195 @@
+diff -up ./addons/pvr.demo/Makefile.am.orig ./addons/pvr.demo/Makefile.am
+--- ./addons/pvr.demo/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.demo/Makefile.am	2014-12-25 11:33:27.706653917 +0100
+@@ -10,7 +10,9 @@ ADDONNAME       = pvr.demo
+ LIBNAME         = libpvrdemo-addon
+ lib_LTLIBRARIES = libpvrdemo-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++LIBS            = $(shell pkg-config --libs tinyxml) @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++
++INCLUDES        = $(shell pkg-config --cflags tinyxml)
+ 
+ include ../Makefile.include.am
+ 
+diff -up ./addons/pvr.dvbviewer/Makefile.am.orig ./addons/pvr.dvbviewer/Makefile.am
+--- ./addons/pvr.dvbviewer/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.dvbviewer/Makefile.am	2014-12-25 11:33:01.541405637 +0100
+@@ -10,7 +10,9 @@ ADDONNAME       = pvr.dvbviewer
+ LIBNAME         = libdvbviewer-addon
+ lib_LTLIBRARIES = libdvbviewer-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++LIBS            = $(shell pkg-config --libs tinyxml) @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++
++INCLUDES        = $(shell pkg-config --cflags tinyxml)
+ 
+ include ../Makefile.include.am
+ 
+diff -up ./addons/pvr.dvbviewer/src/DvbData.cpp.orig ./addons/pvr.dvbviewer/src/DvbData.cpp
+--- ./addons/pvr.dvbviewer/src/DvbData.cpp.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.dvbviewer/src/DvbData.cpp	2014-12-25 11:25:13.533661661 +0100
+@@ -1,7 +1,7 @@
+ #include "DvbData.h"
+ #include "client.h"
+ #include "platform/util/util.h"
+-#include "tinyxml/tinyxml.h"
++#include <tinyxml.h>
+ #include "tinyxml/XMLUtils.h"
+ #include <inttypes.h>
+ #include <set>
+diff -up ./addons/pvr.mediaportal.tvserver/Makefile.am.orig ./addons/pvr.mediaportal.tvserver/Makefile.am
+--- ./addons/pvr.mediaportal.tvserver/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mediaportal.tvserver/Makefile.am	2014-12-25 11:31:57.360249544 +0100
+@@ -10,11 +10,11 @@ ADDONNAME       = pvr.mediaportal.tvserv
+ LIBNAME         = libmediaportal-addon
+ lib_LTLIBRARIES = libmediaportal-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++LIBS            = $(shell pkg-config --libs tinyxml) @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
+ 
+ include ../Makefile.include.am
+ 
+-INCLUDES+=-Isrc
++INCLUDES+=-Isrc $(shell pkg-config --cflags tinyxml)
+ 
+ libmediaportal_addon_la_SOURCES = src/Cards.cpp \
+                                   src/channels.cpp \
+diff -up ./addons/pvr.mediaportal.tvserver/src/GenreTable.cpp.orig ./addons/pvr.mediaportal.tvserver/src/GenreTable.cpp
+--- ./addons/pvr.mediaportal.tvserver/src/GenreTable.cpp.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.mediaportal.tvserver/src/GenreTable.cpp	2014-12-25 11:25:13.535661605 +0100
+@@ -19,7 +19,7 @@
+ 
+ #include "client.h"
+ #include "GenreTable.h"
+-#include "tinyxml/tinyxml.h"
++#include <tinyxml.h>
+ 
+ using namespace ADDON;
+ using namespace std;
+diff -up ./addons/pvr.nextpvr/Makefile.am.orig ./addons/pvr.nextpvr/Makefile.am
+--- ./addons/pvr.nextpvr/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.nextpvr/Makefile.am	2014-12-25 11:32:46.564835910 +0100
+@@ -10,11 +10,11 @@ ADDONNAME       = pvr.nextpvr
+ LIBNAME         = libnextpvr-addon
+ lib_LTLIBRARIES = libnextpvr-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++LIBS            = $(shell pkg-config --libs tinyxml) @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
+ 
+ include ../Makefile.include.am
+ 
+-INCLUDES+=-Isrc
++INCLUDES+=-Isrc $(shell pkg-config --cflags tinyxml)
+ 
+ libnextpvr_addon_la_SOURCES = src/client.cpp \
+                                   src/pvrclient-nextpvr.cpp \
+diff -up ./addons/pvr.nextpvr/src/pvrclient-nextpvr.cpp.orig ./addons/pvr.nextpvr/src/pvrclient-nextpvr.cpp
+--- ./addons/pvr.nextpvr/src/pvrclient-nextpvr.cpp.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.nextpvr/src/pvrclient-nextpvr.cpp	2014-12-25 11:25:13.536661577 +0100
+@@ -30,7 +30,7 @@
+ 
+ #include "md5.h"
+ 
+-#include "tinyxml/tinyxml.h"
++#include <tinyxml.h>
+ 
+ #if defined(TARGET_WINDOWS)
+   #define atoll(S) _atoi64(S) 
+diff -up ./addons/pvr.njoy/Makefile.am.orig ./addons/pvr.njoy/Makefile.am
+--- ./addons/pvr.njoy/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.njoy/Makefile.am	2014-12-25 11:31:12.604530995 +0100
+@@ -10,7 +10,9 @@ ADDONNAME       = pvr.njoy
+ LIBNAME         = libpvrnjoy-addon
+ lib_LTLIBRARIES = libpvrnjoy-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++LIBS            = $(shell pkg-config --libs tinyxml) @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++
++INCLUDES        = $(shell pkg-config --cflags tinyxml)
+ 
+ include ../Makefile.include.am
+ 
+diff -up ./addons/pvr.njoy/src/N7Xml.cpp.orig ./addons/pvr.njoy/src/N7Xml.cpp
+--- ./addons/pvr.njoy/src/N7Xml.cpp.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.njoy/src/N7Xml.cpp	2014-12-25 11:25:13.537661549 +0100
+@@ -1,7 +1,7 @@
+ 
+ 
+ #include "N7Xml.h"
+-#include "tinyxml/tinyxml.h"
++#include <tinyxml.h>
+ #include "tinyxml/XMLUtils.h"
+ 
+ using namespace ADDON;
+diff -up ./addons/pvr.vuplus/Makefile.am.orig ./addons/pvr.vuplus/Makefile.am
+--- ./addons/pvr.vuplus/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.vuplus/Makefile.am	2014-12-25 11:33:15.310010070 +0100
+@@ -10,7 +10,9 @@ ADDONNAME       = pvr.vuplus
+ LIBNAME         = libvuplus-addon
+ lib_LTLIBRARIES = libvuplus-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++LIBS            = $(shell pkg-config --libs tinyxml) @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++
++INCLUDES        = $(shell pkg-config --cflags tinyxml)
+ 
+ include ../Makefile.include.am
+ 
+diff -up ./addons/pvr.vuplus/src/VuData.h.orig ./addons/pvr.vuplus/src/VuData.h
+--- ./addons/pvr.vuplus/src/VuData.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.vuplus/src/VuData.h	2014-12-25 11:25:13.538661520 +0100
+@@ -3,7 +3,7 @@
+ #include "platform/util/StdString.h"
+ #include "client.h"
+ #include "platform/threads/threads.h"
+-#include "tinyxml/tinyxml.h"
++#include <tinyxml.h>
+     
+ #define CHANNELDATAVERSION  2
+ 
+diff -up ./addons/pvr.wmc/Makefile.am.orig ./addons/pvr.wmc/Makefile.am
+--- ./addons/pvr.wmc/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./addons/pvr.wmc/Makefile.am	2014-12-25 11:32:27.123394459 +0100
+@@ -10,7 +10,9 @@ ADDONNAME       = pvr.wmc
+ LIBNAME         = libpvrwmc-addon
+ lib_LTLIBRARIES = libpvrwmc-addon.la
+ 
+-LIBS            = @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++LIBS            = $(shell pkg-config --libs tinyxml) @abs_top_srcdir@/lib/tinyxml/libtinyxml.la
++
++INCLUDES        = $(shell pkg-config --cflags tinyxml)
+ 
+ include ../Makefile.include.am
+ 
+diff -up ./lib/tinyxml/Makefile.am.orig ./lib/tinyxml/Makefile.am
+--- ./lib/tinyxml/Makefile.am.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./lib/tinyxml/Makefile.am	2014-12-25 11:28:52.705478045 +0100
+@@ -1,10 +1,10 @@
+ noinst_LTLIBRARIES = libtinyxml.la
+ 
+-libtinyxml_la_SOURCES = tinystr.cpp \
+-                    tinyxml.cpp \
+-                    tinyxmlerror.cpp \
+-                    tinyxmlparser.cpp \
+-                    XMLUtils.cpp
++AM_CPPFLAGS = $(shell pkg-config --cflags tinyxml)
++
++libtinyxml_la_SOURCES = XMLUtils.cpp
++
++libtinyxml_la_LDFLAGS = $(shell pkg-config --libs tinyxml)
+ 
+ $(LIB): libtinyxml.la
+ 	cp -f .libs/libtinyxml.a .
+diff -up ./lib/tinyxml/XMLUtils.h.orig ./lib/tinyxml/XMLUtils.h
+--- ./lib/tinyxml/XMLUtils.h.orig	2014-12-12 15:59:56.000000000 +0100
++++ ./lib/tinyxml/XMLUtils.h	2014-12-25 11:25:53.121544747 +0100
+@@ -23,7 +23,7 @@
+  */
+ 
+ #include "../platform/util/StdString.h"
+-#include "tinyxml.h"
++#include <tinyxml.h>
+ 
+ class CDateTime;
+ 
