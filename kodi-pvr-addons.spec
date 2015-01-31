@@ -2,9 +2,9 @@
 # try using the same hash that upstream uses for the current Kodi version
 # available in RPMFusion. It can be found in the Kodi source tree like so:
 #   grep ^VERSION tools/depends/target/xbmc-pvr-addons/Makefile
-%global commit 9f63d1bc39ffcb28f8aea580ea0669211e4d16e5
+%global commit a0a437eac14c9532ea0c6d38f8f222a612aea147
 %global short_commit %(c=%{commit}; echo ${c:0:7})
-%global commit_date 20141212
+%global commit_date 20150125
 %global snapshot_release %{commit_date}git%{short_commit}
 # %%global tag 14.0-Helix
 
@@ -15,7 +15,7 @@
 
 Name:           kodi-pvr-addons
 Version:        14.0
-Release:        0.1.%{snapshot_release}%{?dist}
+Release:        0.2.%{snapshot_release}%{?dist}
 # Release:        1%%{?dist}
 Summary:        Kodi PVR add-ons
 
@@ -38,9 +38,6 @@ Patch3:         %{name}-14.0-use_external_tinyxml.patch
 Patch4:         %{name}-14.0-use_external_tinyxml2.patch
 # Use system Kodi headers
 Patch5:         %{name}-14.0-use_external_xbmc.patch
-# Fix compilation with cppmyth >= 1.1.0 (see
-# https://github.com/janbar/xbmc-pvr-addons/commit/a629869)
-Patch6:         %{name}-14.0-cppmyth_1.1.0.patch
 
 BuildRequires:  cppmyth-devel
 BuildRequires:  cryptopp-devel
@@ -163,8 +160,8 @@ multicast/unicast sources, listening to radio channels and EPG.
 Summary:        Kodi frontend for the MediaPortal TV Server (ffmpeg + tsreader version)
 Group:          Applications/Multimedia
 Requires:       %{name}-common = %{version}-%{release}
-Provides:       xbmc-pvr-mediaportal = %{version}-%{release}
-Obsoletes:      xbmc-pvr-mediaportal < 14.0
+Provides:       xbmc-pvr-mediaportal-tvserver = %{version}-%{release}
+Obsoletes:      xbmc-pvr-mediaportal-tvserver < 14.0
 
 %description -n kodi-pvr-mediaportal-tvserver
 MediaPortal TV Server frontend for Kodi. Supports streaming of Live TV &
@@ -255,7 +252,6 @@ A Kodi client to interface to Windows Media Center's record and EPG service.
 %patch3 -p0 -b .use_external_tinyxml
 %patch4 -p0 -b .use_external_tinyxml2
 %patch5 -p0 -b .use_external_xbmc
-%patch6 -p1 -b .cppmyth_1.1.0
 
 # Delete bundled libraries jsoncpp, rapidxml, and tinyxml2
 rm -r lib/{cppmyth,jsoncpp,rapidxml,tinyxml2}/
@@ -373,6 +369,10 @@ find $RPM_BUILD_ROOT%{_datadir}/kodi/addons/ -type f -exec chmod 0644 {} \;
 
 
 %changelog
+* Sat Jan 31 2015 Mohamed El Morabity <melmorabity@fedoraproject.org> - 14.0-0.2.20150125gita0a437e
+- Sync with Kodi 14.1
+- Fix Obsoletes for kodi-pvr-mediaportal-tvserver (RFBZ #3528)
+
 * Mon Dec 29 2014 Mohamed El Morabity <melmorabity@fedoraproject.org> - 14.0-0.1.20140716git9f63d1b
 - Sync with Kodi 14.0
 - Rename to kodi-pvr-addons
