@@ -15,7 +15,7 @@
 
 Name:           kodi-pvr-addons
 Version:        14.0
-Release:        0.2.%{snapshot_release}%{?dist}
+Release:        0.3.%{snapshot_release}%{?dist}
 # Release:        1%%{?dist}
 Summary:        Kodi PVR add-ons
 
@@ -369,6 +369,9 @@ find $RPM_BUILD_ROOT%{_datadir}/kodi/addons/ -type f -exec chmod 0644 {} \;
 
 
 %changelog
+* Sun Mar 19 2017 RPM Fusion Release Engineering <kwizart@rpmfusion.org> - 14.0-0.3.20150125gita0a437e
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
 * Sat Jan 31 2015 Mohamed El Morabity <melmorabity@fedoraproject.org> - 14.0-0.2.20150125gita0a437e
 - Sync with Kodi 14.1
 - Fix Obsoletes for kodi-pvr-mediaportal-tvserver (RFBZ #3528)
